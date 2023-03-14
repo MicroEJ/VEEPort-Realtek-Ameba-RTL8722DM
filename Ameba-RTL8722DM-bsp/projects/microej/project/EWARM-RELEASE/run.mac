@@ -1,0 +1,38 @@
+/*
+ * CSPYBAT
+ *
+ * Copyright 2021 MicroEJ Corp. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be found with this software.
+ * 
+ */
+ 
+__setup_system()
+{
+	__var tmp;
+
+	__hwReset(1);
+}
+
+execUserPreload()
+{
+        __message "User execUserPreload....";
+        __setup_system();
+}
+
+
+execUserReset()
+{
+                __var tmp;
+                __message "User Reset....";
+                tmp = __readMemory32(0x480003F8, "Memory")|((1<<25));
+                __writeMemory32(tmp, 0x480003F8, "Memory");
+}
+
+execUserExecutionStarted(){
+
+ __message "Reset the device to avoid running the application under debug mode....";
+ __message "Running under debug mode may cause an issue when the application will attempt to access to some peripherals.";
+ __message "Do not care about the error message below. Jlink has just lost connection with the device as the device has been reset.";
+ //configure the watchdog register with a value (0x40010682) that will cause the device reset in 50ms.
+ __writeMemory32(0x40010682, 0x40002800, "Memory");
+}

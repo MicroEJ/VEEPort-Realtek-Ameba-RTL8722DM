@@ -1,0 +1,402 @@
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/inc/flash_fatfs.h b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/inc/flash_fatfs.h
+index 5ad8df89..406ce48f 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/inc/flash_fatfs.h
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/inc/flash_fatfs.h
+@@ -2,5 +2,8 @@
+ #define _FLASH_FATFS_H_
+ #include "fatfs_ext/inc/ff_driver.h"
+ 
++
++#define FATFS_DISK_FLASH 	1
++
+ extern ll_diskio_drv FLASH_disk_Driver;
+ #endif
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/src/flash_fatfs.c b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/src/flash_fatfs.c
+index a4da97f4..a6764a10 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/src/flash_fatfs.c
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/disk_if/src/flash_fatfs.c
+@@ -29,7 +29,8 @@
+ #define FLASH_APP_BASE  0x440000
+ #else
+ #ifndef FLASH_APP_BASE
+-#define FLASH_APP_BASE  0x180000
++//#define FLASH_APP_BASE  0x180000
++#define FLASH_APP_BASE  0x0160000
+ #endif
+ #endif
+ 
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/r0.10c/include/ffconf.h b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/r0.10c/include/ffconf.h
+index f2534fad..69bb3cd1 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/r0.10c/include/ffconf.h
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/common/file_system/fatfs/r0.10c/include/ffconf.h
+@@ -153,7 +153,8 @@
+ 
+ 
+ #define	_MIN_SS		512
+-#define	_MAX_SS		512
++//#define	_MAX_SS		512 //for usb or sd
++#define	_MAX_SS		4096 //for flash
+ /* These options configure the range of sector size to be supported. (512, 1024, 2048 or
+ /  4096) Always set both 512 for most systems, all memory card and harddisk. But a larger
+ /  value may be required for on-board flash memory and some type of optical media.
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/FreeRTOS.h b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/FreeRTOS.h
+index 676534d0..98090838 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/FreeRTOS.h
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/FreeRTOS.h
+@@ -23,6 +23,9 @@
+  * http://aws.amazon.com/freertos
+  *
+  * 1 tab == 4 spaces!
++ *
++ * Copyright 2020 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++ * 1. Include Segger patch for system view.
+  */
+ 
+ #ifndef INC_FREERTOS_H
+@@ -160,6 +163,10 @@ extern "C" {
+ 	#define INCLUDE_uxTaskGetStackHighWaterMark2 0
+ #endif
+ 
++#ifndef INCLUDE_pxTaskGetStackStart
++   #define INCLUDE_pxTaskGetStackStart 0
++#endif
++
+ #ifndef INCLUDE_eTaskGetState
+ 	#define INCLUDE_eTaskGetState 0
+ #endif
+@@ -396,6 +403,22 @@ extern "C" {
+ 	#define tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
+ #endif
+ 
++#ifndef traceREADDED_TASK_TO_READY_STATE
++   #define traceREADDED_TASK_TO_READY_STATE( pxTCB )   traceMOVED_TASK_TO_READY_STATE( pxTCB )
++#endif
++
++#ifndef traceMOVED_TASK_TO_DELAYED_LIST
++   #define traceMOVED_TASK_TO_DELAYED_LIST()
++#endif
++
++#ifndef traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST
++   #define traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST()
++#endif
++
++#ifndef traceMOVED_TASK_TO_SUSPENDED_LIST
++   #define traceMOVED_TASK_TO_SUSPENDED_LIST( pxTCB )
++#endif
++
+ #ifndef traceQUEUE_CREATE
+ 	#define traceQUEUE_CREATE( pxNewQueue )
+ #endif
+@@ -640,6 +663,18 @@ extern "C" {
+ 	#define traceTASK_NOTIFY_GIVE_FROM_ISR()
+ #endif
+ 
++#ifndef traceISR_EXIT_TO_SCHEDULER
++   #define traceISR_EXIT_TO_SCHEDULER()
++#endif
++
++#ifndef traceISR_EXIT
++   #define traceISR_EXIT()
++#endif
++
++#ifndef traceISR_ENTER
++   #define traceISR_ENTER()
++#endif
++
+ #ifndef traceSTREAM_BUFFER_CREATE_FAILED
+ 	#define traceSTREAM_BUFFER_CREATE_FAILED( xIsMessageBuffer )
+ #endif
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/task.h b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/task.h
+index 8c8653a4..cbc0699b 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/task.h
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/include/task.h
+@@ -23,6 +23,10 @@
+  * http://aws.amazon.com/freertos
+  *
+  * 1 tab == 4 spaces!
++ *
++ * Copyright 2020 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++ * 1. Add definition for "pxTaskGetStackStart" function.
++ * 2. Include Segger patch for system view
+  */
+ 
+ 
+@@ -1463,6 +1467,25 @@ UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask ) PRIVILEGED_FUNCTIO
+  */
+ configSTACK_DEPTH_TYPE uxTaskGetStackHighWaterMark2( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+ 
++/**
++ * task.h
++ * <PRE>uint8_t* pxTaskGetStackStart( TaskHandle_t xTask);</PRE>
++ *
++ * INCLUDE_pxTaskGetStackStart must be set to 1 in FreeRTOSConfig.h for
++ * this function to be available.
++ *
++ * Returns the start of the stack associated with xTask.  That is,
++ * the highest stack memory address on architectures where the stack grows down
++ * from high memory, and the lowest memory address on architectures where the
++ * stack grows up from low memory.
++ *
++ * @param xTask Handle of the task associated with the stack returned.
++ * Set xTask to NULL to return the stack of the calling task.
++ *
++ * @return A pointer to the start of the stack.
++ */
++uint8_t* pxTaskGetStackStart( TaskHandle_t xTask) PRIVILEGED_FUNCTION;
++
+ /* When using trace macros it is sometimes necessary to include task.h before
+ FreeRTOS.h.  When this is done TaskHookFunction_t will not yet have been defined,
+ so the following two prototypes will cause a compilation error.  This can be
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/port.c b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/port.c
+index de5daed8..b00ce38d 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/port.c
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/port.c
+@@ -23,6 +23,12 @@
+  * http://aws.amazon.com/freertos
+  *
+  * 1 tab == 4 spaces!
++ *
++ * Copyright 2020-2022 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++ * 1. Disable vApplicationIdleHook, MicroEJ implements its own version
++ * 2. Include Segger patch for system view
++ * 3. Add a new counter variable for systemview. Variable incremented in SysTick_handler 
++ *     and used by Systemview implementation for a correct time calculation.
+  */
+ 
+ /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
+@@ -306,6 +312,12 @@ void SysTick_Handler( void ) PRIVILEGED_FUNCTION;
+  * @brief C part of SVC handler.
+  */
+ void vPortSVCHandler_C( uint32_t *pulCallerStackAddress ) PRIVILEGED_FUNCTION;
++
++#if defined ENABLE_SYSTEM_VIEW
++/*Variable used in the custom implementation of SEGGER_SYSVIEW_X_GetTimestamp used by SystemView*/
++unsigned int SEGGER_SYSVIEW_TickCnt = 0;
++#endif
++
+ /*-----------------------------------------------------------*/
+ 
+ /**
+@@ -507,15 +519,23 @@ void vPortExitCritical( void ) /* PRIVILEGED_FUNCTION */
+ void SysTick_Handler( void ) /* PRIVILEGED_FUNCTION */
+ {
+ uint32_t ulPreviousMask;
+-
++#if defined ENABLE_SYSTEM_VIEW
++	SEGGER_SYSVIEW_TickCnt++;
++#endif
+ 	ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
++	//traceISR_ENTER();
+ 	{
++		//traceISR_EXIT_TO_SCHEDULER();
+ 		/* Increment the RTOS tick. */
+ 		if( xTaskIncrementTick() != pdFALSE )
+ 		{
+ 			/* Pend a context switch. */
+ 			*( portNVIC_INT_CTRL ) = portNVIC_PENDSVSET;
+ 		}
++		else
++		{
++		    //traceISR_EXIT();
++		}
+ 	}
+ 	portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+ }
+@@ -896,18 +916,20 @@ void vPortEndScheduler( void ) /* PRIVILEGED_FUNCTION */
+ #endif /* configENABLE_MPU */
+ /*-----------------------------------------------------------*/
+ 
++#if 0 // Disable vApplicationIdleHook, MicroEJ implements its own version
+ void vApplicationIdleHook( void )
+ {
+ 	/* Use the idle task to place the CPU into a low power mode.  Greater power
+ 	saving could be achieved by not including any demo tasks that never block. */
+ }
++#endif
+ 
+ #include "diag.h"
+ void vApplicationStackOverflowHook( xTaskHandle pxTask, signed char *pcTaskName )
+ {
+ 	/* To avoid gcc warnings */
+ 	( void ) pxTask;
+-	
++
+ 	/* This function will be called if a task overflows its stack, if
+ 	configCHECK_FOR_STACK_OVERFLOW != 0.  It might be that the function
+ 	parameters have been corrupted, depending on the severity of the stack
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/portmacro.h b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/portmacro.h
+index 4a3a08ac..59c6c496 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/portmacro.h
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/portable/IAR/RTL8721D_HP/non_secure/portmacro.h
+@@ -23,6 +23,9 @@
+  * http://aws.amazon.com/freertos
+  *
+  * 1 tab == 4 spaces!
++ *
++ * Copyright 2020 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++ * 1. Include Segger patch for system view.
+  */
+ 
+ #ifndef PORTMACRO_H
+@@ -212,7 +215,7 @@ typedef struct MPU_SETTINGS
+ #define portYIELD()											vPortYield()
+ #define portNVIC_INT_CTRL_REG								( * ( ( volatile uint32_t * ) 0xe000ed04 ) )
+ #define portNVIC_PENDSVSET_BIT								( 1UL << 28UL )
+-#define portEND_SWITCHING_ISR( xSwitchRequired )			if( xSwitchRequired ) portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT
++#define portEND_SWITCHING_ISR( xSwitchRequired )			{if( xSwitchRequired ) {traceISR_EXIT_TO_SCHEDULER();portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;}else{traceISR_EXIT();}}
+ #define portYIELD_FROM_ISR( x )								portEND_SWITCHING_ISR( x )
+ /*-----------------------------------------------------------*/
+ 
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/tasks.c b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/tasks.c
+index ff657733..4737fa45 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/tasks.c
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/os/freertos/freertos_v10.2.0/Source/tasks.c
+@@ -23,6 +23,9 @@
+  * http://aws.amazon.com/freertos
+  *
+  * 1 tab == 4 spaces!
++ *
++ * Copyright 2020 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++ * 1. Include Segger patch for system view.
+  */
+ 
+ /* Standard includes. */
+@@ -220,6 +223,17 @@ count overflows. */
+ 	taskRECORD_READY_PRIORITY( ( pxTCB )->uxPriority );												\
+ 	vListInsertEnd( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) ); \
+ 	tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
++
++/*
++ * Place the task represented by pxTCB which has been in a ready list before
++ * into the appropriate ready list for the task.
++ * It is inserted at the end of the list.
++ */
++#define prvReaddTaskToReadyList( pxTCB )                                                           \
++   traceREADDED_TASK_TO_READY_STATE( pxTCB );                                                      \
++   taskRECORD_READY_PRIORITY( ( pxTCB )->uxPriority );                                             \
++   vListInsertEnd( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) ); \
++   tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
+ /*-----------------------------------------------------------*/
+ 
+ /*
+@@ -1664,7 +1678,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
+ 					{
+ 						mtCOVERAGE_TEST_MARKER();
+ 					}
+-					prvAddTaskToReadyList( pxTCB );
++					prvReaddTaskToReadyList( pxTCB );
+ 				}
+ 				else
+ 				{
+@@ -1726,6 +1740,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
+ 				mtCOVERAGE_TEST_MARKER();
+ 			}
+ 
++			traceMOVED_TASK_TO_SUSPENDED_LIST(pxTCB);
+ 			vListInsertEnd( &xSuspendedTaskList, &( pxTCB->xStateListItem ) );
+ 
+ 			#if( configUSE_TASK_NOTIFICATIONS == 1 )
+@@ -3820,6 +3835,20 @@ static void prvCheckTasksWaitingTermination( void )
+ #endif /* INCLUDE_uxTaskGetStackHighWaterMark */
+ /*-----------------------------------------------------------*/
+ 
++#if (INCLUDE_pxTaskGetStackStart == 1)
++   uint8_t* pxTaskGetStackStart( TaskHandle_t xTask)
++   {
++       TCB_t *pxTCB;
++       UBaseType_t uxReturn;
++        (void)uxReturn;
++
++       pxTCB = prvGetTCBFromHandle( xTask );
++       return ( uint8_t * ) pxTCB->pxStack;
++   }
++
++#endif /* INCLUDE_pxTaskGetStackStart */
++/*-----------------------------------------------------------*/
++
+ #if ( INCLUDE_vTaskDelete == 1 )
+ 
+ 	static void prvDeleteTCB( TCB_t *pxTCB )
+@@ -3989,7 +4018,7 @@ TCB_t *pxTCB;
+ 
+ 					/* Inherit the priority before being moved into the new list. */
+ 					pxMutexHolderTCB->uxPriority = pxCurrentTCB->uxPriority;
+-					prvAddTaskToReadyList( pxMutexHolderTCB );
++					prvReaddTaskToReadyList( pxMutexHolderTCB );
+ 				}
+ 				else
+ 				{
+@@ -4079,7 +4108,7 @@ TCB_t *pxTCB;
+ 					any other purpose if this task is running, and it must be
+ 					running to give back the mutex. */
+ 					listSET_LIST_ITEM_VALUE( &( pxTCB->xEventListItem ), ( TickType_t ) configMAX_PRIORITIES - ( TickType_t ) pxTCB->uxPriority ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
+-					prvAddTaskToReadyList( pxTCB );
++					prvReaddTaskToReadyList( pxTCB );
+ 
+ 					/* Return true to indicate that a context switch is required.
+ 					This is only actually required in the corner case whereby
+@@ -5111,6 +5140,7 @@ const TickType_t xConstTickCount = xTickCount;
+ 			/* Add the task to the suspended task list instead of a delayed task
+ 			list to ensure it is not woken by a timing event.  It will block
+ 			indefinitely. */
++			traceMOVED_TASK_TO_SUSPENDED_LIST(pxCurrentTCB);
+ 			vListInsertEnd( &xSuspendedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 		}
+ 		else
+@@ -5127,12 +5157,14 @@ const TickType_t xConstTickCount = xTickCount;
+ 			{
+ 				/* Wake time has overflowed.  Place this item in the overflow
+ 				list. */
++				traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST();
+ 				vListInsert( pxOverflowDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 			}
+ 			else
+ 			{
+ 				/* The wake time has not overflowed, so the current block list
+ 				is used. */
++				traceMOVED_TASK_TO_DELAYED_LIST();
+ 				vListInsert( pxDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 
+ 				/* If the task entering the blocked state was placed at the
+@@ -5162,11 +5194,13 @@ const TickType_t xConstTickCount = xTickCount;
+ 		if( xTimeToWake < xConstTickCount )
+ 		{
+ 			/* Wake time has overflowed.  Place this item in the overflow list. */
++			traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST();
+ 			vListInsert( pxOverflowDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 		}
+ 		else
+ 		{
+ 			/* The wake time has not overflowed, so the current block list is used. */
++			traceMOVED_TASK_TO_DELAYED_LIST();
+ 			vListInsert( pxDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 
+ 			/* If the task entering the blocked state was placed at the head of the
+diff --git a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c
+index 5a4c6e6c..4303b419 100644
+--- a/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c
++++ b/Ameba-RTL8722DM-bsp/sdk/sdk-amebad_v6.2C-RC/component/soc/realtek/amebad/fwlib/usrcfg/rtl8721dhp_intfcfg.c
+@@ -14,6 +14,10 @@
+   * possession or use of this module requires written permission of RealTek.
+   *
+   * Copyright(c) 2015, Realtek Semiconductor Corporation. All rights reserved.
++  *
++  * Copyright 2020-2022 MicroEJ Corp. This file has been modified by MicroEJ Corp.
++  * 1. Enable PSRAM
++  *
+   ****************************************************************************** 
+   */
+ 
+@@ -27,9 +31,9 @@ PSRAMCFG_TypeDef psram_dev_config = {
+ 	.psram_dev_cal_enable = TRUE,			//enable psram calibration function
+ 	.psram_dev_retention = TRUE,			//enable psram retention
+ #else
+-	.psram_dev_enable = FALSE,			//enable psram
+-	.psram_dev_cal_enable = FALSE,			//enable psram calibration function
+-	.psram_dev_retention = FALSE,			//enable psram retention	
++	.psram_dev_enable = TRUE,			//enable psram
++	.psram_dev_cal_enable = TRUE,			//enable psram calibration function
++	.psram_dev_retention = TRUE,			//enable psram retention
+ #endif
+ };
+ 

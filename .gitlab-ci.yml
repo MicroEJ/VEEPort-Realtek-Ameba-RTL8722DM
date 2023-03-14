@@ -1,0 +1,12 @@
+#
+# Copyright 2023 MicroEJ Corp. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be found with this software.
+#
+
+variables:
+  MODULE_DIR: "Ameba-RTL8722DM-configuration"
+  ANT_PROPERTIES: "-Dskip.publish=false -Dcom.microej.platformbuilder.bsp.build.enabled=false"
+
+include:
+  - project: 'I0271_CI/I0271_Gitlab_Templates'
+    file: '/templates/Module-Flow.gitlab-ci.yml'

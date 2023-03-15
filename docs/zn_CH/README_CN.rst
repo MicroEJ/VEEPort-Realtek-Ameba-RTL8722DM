@@ -36,7 +36,7 @@
 
 .. code-block:: sh
 
-   git clone --recursive https://gitlab.microej.com/p0236_ameba-rtl8722dm/P0236_Ameba-RTL8722DM-Platform.git
+   git clone --recursive https://github.com/MicroEJ/P0236_Ameba-RTL8722DM-Platform.git
 
 相关文件
 =============

@@ -5,7 +5,7 @@
 	Use of this source code is governed by a BSD-style license that can be found with this software.
 	
 -->
-<platform hardwarePartNumber="AmebaD" name="RTL8722DM" version="1.0.0" provider="MicroEJ" vendorUrl="http://developer.microej.com/4.0/sdk/license" workbenchMinVersion="1.7.0">
+<platform hardwarePartNumber="AmebaD" name="RTL8722DM" version="1.0.1" provider="MicroEJ" vendorUrl="http://developer.microej.com/4.0/sdk/license" workbenchMinVersion="1.7.0">
     <environment architecture="CM4" baseline="14" hardwarePartNumber="CM4" toolchain="CM4hardfp_IAR83" name="flopi4I35" techVersion="1.6" version="7.16.0" level="eval" provider="MicroEJ" licenseTag="IS2T_J8F5C"/>
     <group name="externalResources"/>
     <group name="frontPanel"/>

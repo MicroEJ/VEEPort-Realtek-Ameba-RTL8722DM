@@ -3,7 +3,7 @@
 
 .. |BOARD_NAME| replace:: Ameba RTL8722DM
 .. |BOARD_REVISION| replace:: RTL-AMEBAD_MB_3V0
-.. |VEEPORT_VER| replace:: 1.0.1
+.. |VEEPORT_VER| replace:: 1.0.2
 .. |RCP| replace:: MICROEJ SDK
 .. |VEEPORT| replace:: VEE Port
 .. |VEEPORTS| replace:: VEE Ports

@@ -3,7 +3,7 @@
 
 .. |BOARD_NAME| replace:: Ameba RTL8722DM
 .. |BOARD_REVISION| replace:: RTL-AMEBAD_MB_3V0
-.. |VEEPORT_VER| replace:: 1.0.0
+.. |VEEPORT_VER| replace:: 1.0.2
 .. |RCP| replace:: MICROEJ SDK
 .. |VEEPORT| replace:: VEE Port
 .. |VEEPORTS| replace:: VEE Ports
@@ -32,11 +32,6 @@
   :width: 1024px
   :height: 938px
 
-使用以下命令克隆代码仓库： 
-
-.. code-block:: sh
-
-   git clone --recursive https://github.com/MicroEJ/P0236_Ameba-RTL8722DM-Platform.git
 
 相关文件
 =============
